@@ -36,8 +36,13 @@
         .toast-container {
             position: fixed;
             top: 20px;
-            right: 20px;
+            left: 50%;
+            transform: translateX(-50%);
             z-index: 1000;
+        }
+        .toast {
+            margin-bottom: 10px;
+            min-width: 300px;
         }
     </style>
 
@@ -278,7 +283,7 @@
             const toastContainer = document.querySelector('.toast-container');
             const toastId = 'toast-' + Date.now();
             const toast = document.createElement('div');
-            toast.className = 'toast';
+            toast.className = 'toast fade show';
             toast.setAttribute('role', 'alert');
             toast.setAttribute('aria-live', 'assertive');
             toast.setAttribute('aria-atomic', 'true');
