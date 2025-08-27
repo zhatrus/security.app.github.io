@@ -498,8 +498,10 @@
                 currentLeg.departureCity = lastLeg.arrivalCity;
                 document.getElementById('departure-city').value = currentLeg.departureCity;
 
-                // Автоматично встановлюємо дату виїзду як дату прибуття з попереднього сегменту
-                document.getElementById('departure-date').value = lastLeg.arrivalDate;
+                // Автоматично встановлюємо дату виїзду та мінімальну дату
+                const departureDateInput = document.getElementById('departure-date');
+                departureDateInput.value = lastLeg.arrivalDate;
+                departureDateInput.min = lastLeg.arrivalDate; // Встановлюємо мінімальну дату
                 
                 // Встановлюємо мінімальний час виїзду як час прибуття попереднього сегменту
                 const departureTimeSelect = document.getElementById('departure-time');
@@ -615,11 +617,20 @@
                 return;
             }
 
-            // Перевірка, що дата виїзду не в минулому
+            // Перевірка, що дата виїзду не в минулому та не раніше попереднього сегменту
             const today = new Date().toISOString().split('T')[0];
             if (dateInput.value < today) {
                 alert('Дата виїзду не може бути в минулому!');
                 return;
+            }
+
+            // Перевіряємо, чи не раніше за попередній сегмент
+            if (tripData.legs.length > 0) {
+                const lastLeg = tripData.legs[tripData.legs.length - 1];
+                if (dateInput.value < lastLeg.arrivalDate) {
+                    alert('Дата виїзду не може бути раніше за дату прибуття попереднього сегменту!');
+                    return;
+                }
             }
 
             currentLeg.departureDate = dateInput.value;
