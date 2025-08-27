@@ -33,6 +33,12 @@
             color: #0d6efd;
             margin-bottom: 10px;
         }
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
     </style>
 
 </head>
@@ -267,6 +273,35 @@
     <!-- Підключаємо наш власний JS файл -->
     <!-- <script src="script.js"></script> -->
     <script>
+        // Функція для показу Toast повідомлень
+        function showToast(message, type = 'danger') {
+            const toastContainer = document.querySelector('.toast-container');
+            const toastId = 'toast-' + Date.now();
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.setAttribute('role', 'alert');
+            toast.setAttribute('aria-live', 'assertive');
+            toast.setAttribute('aria-atomic', 'true');
+            toast.innerHTML = `
+                <div class="toast-header">
+                    <strong class="me-auto text-${type}">Повідомлення</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                    ${message}
+                </div>
+            `;
+            toastContainer.appendChild(toast);
+
+            // Ініціалізуємо Toast через Bootstrap
+            const bsToast = new bootstrap.Toast(toast, {
+                animation: true,
+                autohide: true,
+                delay: 5000
+            });
+            bsToast.show();
+        }
+
         // Глобальний об'єкт для зберігання всіх даних форми
         const tripData = {
             legs: [] // Масив для зберігання сегментів поїздки
@@ -317,7 +352,7 @@
             const cityName = cityInput.value.trim();
 
             if (cityName === '') {
-                alert('Будь ласка, введіть місто прибуття.');
+                showToast('Будь ласка, введіть місто прибуття.');
                 return;
             }
 
@@ -333,13 +368,13 @@
             const timeSelect = document.getElementById('arrival-time');
 
             if (arrivalDateInput.value === '' || timeSelect.value === '') {
-                alert('Будь ласка, заповніть дату та час прибуття.');
+                showToast('Будь ласка, заповніть дату та час прибуття.');
                 return;
             }
 
             // ПЕРЕВІРКА: дата прибуття не може бути раніше дати виїзду
             if (arrivalDateInput.value < departureDateInput.value) {
-                alert('Дата прибуття не може бути раніше дати виїзду!');
+                showToast('Дата прибуття не може бути раніше дати виїзду!');
                 return;
             }
 
@@ -354,7 +389,7 @@
                 const arrTotalMinutes = arrHours * 60 + arrMinutes;
                 
                 if (arrTotalMinutes <= depTotalMinutes) {
-                    alert('Час прибуття не може бути раніше або дорівнювати часу виїзду!');
+                    showToast('Час прибуття не може бути раніше або дорівнювати часу виїзду!');
                     return;
                 }
             }
@@ -422,7 +457,7 @@
             const overnightInput = document.getElementById('overnight-stay');
 
             if (overnightInput.value === '') {
-                alert('Будь ласка, вкажіть, чи потрібна ночівля.');
+                showToast('Будь ласка, вкажіть, чи потрібна ночівля.');
                 return;
             }
 
@@ -435,7 +470,7 @@
                 currentLeg.hotelName = hotelSelect.options[hotelSelect.selectedIndex]?.text;
 
                 if (!currentLeg.hotelId || currentLeg.hotelId === '') {
-                    alert('Будь ласка, оберіть готель.');
+                    showToast('Будь ласка, оберіть готель.');
                     return;
                 }
             }
@@ -445,20 +480,20 @@
                 currentLeg.nextDepartureTime = nextDepartureTime.value;
 
                 if (!currentLeg.nextDepartureTime || currentLeg.nextDepartureTime === '') {
-                    alert('Будь ласка, оберіть час виїзду.');
+                    showToast('Будь ласка, оберіть час виїзду.');
                     return;
                 }
 
                 // Додаткова перевірка: час виїзду не може бути раніше часу прибуття
                 if (currentLeg.arrivalTime && currentLeg.nextDepartureTime <= currentLeg.arrivalTime) {
-                    alert('Час виїзду не може бути раніше або дорівнювати часу прибуття!');
+                    showToast('Час виїзду не може бути раніше або дорівнювати часу прибуття!');
                     return;
                 }
             }
 
             // Перевірка, що місто прибуття не співпадає з містом відправлення
             if (currentLeg.departureCity === currentLeg.arrivalCity) {
-                alert('Місто прибуття не може співпадати з містом відправлення!');
+                showToast('Місто прибуття не може співпадати з містом відправлення!');
                 return;
             }
 
@@ -531,7 +566,7 @@
             // Тут буде логіка перевірки, чи кінцева точка збігається з початковою
             // та відправка даних (tripData) через вебхук
             console.log('Відрядження завершено. Дані для відправки:', tripData);
-            alert('Відрядження завершено! Дані готові до відправки. Перевірте консоль (F12).');
+            showToast('Відрядження завершено! Дані готові до відправки.', 'success');
             // Наступним кроком буде реалізація вебхука
         }
 
@@ -594,7 +629,7 @@
 
             // Проста валідація
             if (cityName === '') {
-                alert('Будь ласка, введіть місто.');
+                showToast('Будь ласка, введіть місто.');
                 return;
             }
 
@@ -613,14 +648,14 @@
             const timeSelect = document.getElementById('departure-time');
 
             if (dateInput.value === '' || timeSelect.value === '') {
-                alert('Будь ласка, заповніть дату та час.');
+                showToast('Будь ласка, заповніть дату та час.');
                 return;
             }
 
             // Перевірка, що дата виїзду не в минулому та не раніше попереднього сегменту
             const today = new Date().toISOString().split('T')[0];
             if (dateInput.value < today) {
-                alert('Дата виїзду не може бути в минулому!');
+                showToast('Дата виїзду не може бути в минулому!');
                 return;
             }
 
@@ -628,7 +663,7 @@
             if (tripData.legs.length > 0) {
                 const lastLeg = tripData.legs[tripData.legs.length - 1];
                 if (dateInput.value < lastLeg.arrivalDate) {
-                    alert('Дата виїзду не може бути раніше за дату прибуття попереднього сегменту!');
+                    showToast('Дата виїзду не може бути раніше за дату прибуття попереднього сегменту!');
                     return;
                 }
             }
@@ -643,7 +678,7 @@
             const transportInput = document.getElementById('selected-transport');
 
             if (transportInput.value === '') {
-                alert('Будь ласка, оберіть тип транспорту.');
+                showToast('Будь ласка, оберіть тип транспорту.');
                 return;
             }
 
@@ -675,6 +710,24 @@
 
                     if (needsOvernight && currentLeg.arrivalCity) {
                         loadHotelsForCity(currentLeg.arrivalCity);
+                    } else if (!needsOvernight) {
+                        // Оновлюємо час виїзду для наступного етапу
+                        const nextDepartureSelect = document.getElementById('next-departure-time');
+                        nextDepartureSelect.innerHTML = '<option value="">Оберіть час...</option>';
+                        
+                        const [arrHours, arrMinutes] = currentLeg.arrivalTime.split(':').map(Number);
+                        const arrTotalMinutes = arrHours * 60 + arrMinutes;
+
+                        for (let hours = 0; hours < 24; hours++) {
+                            for (let minutes = 0; minutes < 60; minutes += 30) {
+                                const totalMinutes = hours * 60 + minutes;
+                                if (totalMinutes > arrTotalMinutes) {
+                                    const timeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+                                    const option = new Option(timeString, timeString);
+                                    nextDepartureSelect.appendChild(option);
+                                }
+                            }
+                        }
                     }
                 });
             });
@@ -875,6 +928,8 @@
             setupPreviewUpdates(); // Додаємо оновлення превью
         };
     </script>
+    <!-- Контейнер для Toast повідомлень -->
+    <div class="toast-container"></div>
 </body>
 
 </html>
