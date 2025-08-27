@@ -680,10 +680,35 @@
             });
         }
 
-        // Функція для обмеження дати прибуття
+        // Функція для обмеження дати прибуття та оновлення часу
         function setupDateValidation() {
             const departureDateInput = document.getElementById('departure-date');
             const arrivalDateInput = document.getElementById('arrival-date');
+            const arrivalTimeSelect = document.getElementById('arrival-time');
+            const departureTimeSelect = document.getElementById('departure-time');
+
+            // Функція оновлення часу прибуття
+            function updateArrivalTimes() {
+                const isSameDate = arrivalDateInput.value === departureDateInput.value;
+                const departureTime = departureTimeSelect.value;
+                const [depHours, depMinutes] = departureTime.split(':').map(Number);
+                const depTotalMinutes = depHours * 60 + depMinutes;
+
+                arrivalTimeSelect.innerHTML = '<option value="">Оберіть час...</option>';
+                
+                for (let hours = 0; hours < 24; hours++) {
+                    for (let minutes = 0; minutes < 60; minutes += 30) {
+                        const totalMinutes = hours * 60 + minutes;
+                        
+                        // Якщо дата та сама, показуємо тільки час після відправлення
+                        if (!isSameDate || totalMinutes > depTotalMinutes) {
+                            const timeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+                            const option = new Option(timeString, timeString);
+                            arrivalTimeSelect.appendChild(option);
+                        }
+                    }
+                }
+            }
 
             departureDateInput.addEventListener('change', function () {
                 if (this.value) {
@@ -697,8 +722,16 @@
                     if (arrivalDateInput.value && arrivalDateInput.value < this.value) {
                         arrivalDateInput.value = this.value;
                     }
+                    
+                    updateArrivalTimes();
                 }
             });
+
+            // Додаємо обробник зміни дати прибуття
+            arrivalDateInput.addEventListener('change', updateArrivalTimes);
+            
+            // Додаємо обробник зміни часу відправлення
+            departureTimeSelect.addEventListener('change', updateArrivalTimes);
 
             // Також додамо обмеження для дати виїзду (не може бути в минулому)
             const today = new Date().toISOString().split('T')[0];
