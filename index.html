@@ -346,7 +346,14 @@
             // ДОДАТКОВА ПЕРЕВІРКА: якщо дати однакові, перевіряємо час
             if (arrivalDateInput.value === departureDateInput.value) {
                 const departureTime = document.getElementById('departure-time').value;
-                if (timeSelect.value <= departureTime) {
+                // Конвертуємо час в хвилини для правильного порівняння
+                const [depHours, depMinutes] = departureTime.split(':').map(Number);
+                const [arrHours, arrMinutes] = timeSelect.value.split(':').map(Number);
+                
+                const depTotalMinutes = depHours * 60 + depMinutes;
+                const arrTotalMinutes = arrHours * 60 + arrMinutes;
+                
+                if (arrTotalMinutes <= depTotalMinutes) {
                     alert('Час прибуття не може бути раніше або дорівнювати часу виїзду!');
                     return;
                 }
@@ -493,6 +500,24 @@
 
                 // Автоматично встановлюємо дату виїзду як дату прибуття з попереднього сегменту
                 document.getElementById('departure-date').value = lastLeg.arrivalDate;
+                
+                // Встановлюємо мінімальний час виїзду як час прибуття попереднього сегменту
+                const departureTimeSelect = document.getElementById('departure-time');
+                const [lastArrHours, lastArrMinutes] = lastLeg.arrivalTime.split(':').map(Number);
+                const lastArrTotalMinutes = lastArrHours * 60 + lastArrMinutes;
+
+                // Оновлюємо опції часу
+                departureTimeSelect.innerHTML = '<option value="">Оберіть час...</option>';
+                for (let hours = 0; hours < 24; hours++) {
+                    for (let minutes = 0; minutes < 60; minutes += 30) {
+                        const totalMinutes = hours * 60 + minutes;
+                        if (totalMinutes > lastArrTotalMinutes || lastLeg.arrivalDate !== lastLeg.departureDate) {
+                            const timeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+                            const option = new Option(timeString, timeString);
+                            departureTimeSelect.appendChild(option);
+                        }
+                    }
+                }
 
                 // Оновлюємо обмеження для дати прибуття
                 document.getElementById('arrival-date').min = lastLeg.arrivalDate;
