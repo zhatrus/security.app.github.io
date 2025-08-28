@@ -13,6 +13,11 @@
     <style>
         body {
             background: linear-gradient(180deg, #E3EEFF 0%, #F3F8FF 100%) fixed;
+            background-image: url('background.png');
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            min-height: 100vh;
         }
         
         /* Мінімальні стилі для приховування блоків */
@@ -80,6 +85,22 @@
             }
         }
 
+        /* Загальні стилі для форм та кнопок */
+        .form-control, .form-select {
+            border: 1px solid rgba(0,0,0,0.1);
+            background: rgba(255,255,255,0.9);
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: rgba(255,255,255,0.95);
+            box-shadow: 0 0 0 0.25rem rgba(13,110,253,.15);
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 50rem;
+        }
+
         /* Стилі для десктопу */
         @media (min-width: 769px) {
             .container {
@@ -100,7 +121,7 @@
 
 </head>
 
-<body class="bg-light">
+<body>
 
     <div class="container py-5">
         <!-- Заголовок -->
@@ -114,7 +135,7 @@
         <!-- Блок для відображення зведеної інформації (спочатку порожній) -->
         <div class="row justify-content-center mb-4">
             <div class="col-md-8">
-                <div id="summary-container" class="card">
+                <div id="summary-container" class="card bg-white bg-opacity-50 backdrop-blur">
                     <div class="card-header">
                         Зведена інформація
                     </div>
@@ -129,7 +150,7 @@
         <!-- Контейнер для форми з питаннями -->
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <div class="card shadow-sm rounded-4 border-0 bg-white bg-opacity-75">
+                <div class="card shadow-sm rounded-4 border-0 bg-white bg-opacity-50 backdrop-blur">
                     <div class="card-body p-4">
 
                         <!-- Початок форми -->
