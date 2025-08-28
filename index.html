@@ -127,8 +127,10 @@
         <!-- Заголовок -->
         <div class="row justify-content-center mb-4">
             <div class="col-md-8 text-center">
-                <h1 class="display-6">Планувальник відряджень</h1>
-                <p class="lead">Створіть план вашої поїздки</p>
+                <div class="bg-white bg-opacity-75 p-4 rounded-4 backdrop-blur">
+                    <h1 class="display-6 mb-2">Планувальник відряджень</h1>
+                    <p class="lead mb-0">Створіть план вашої поїздки</p>
+                </div>
             </div>
         </div>
 
@@ -159,11 +161,9 @@
                             <!-- Крок 1: Місто початку -->
                             <div id="step-1" class="question-step active-step">
                                 <h5 class="card-title mb-4">1. Місто початку відрядження</h5>
-                                <!-- Превью поточних даних (спочатку порожнє) -->
-                                <div id="step-${stepNumber}-preview" class="current-data-preview"
-                                    style="display: none;">
+                                <div id="step-1-preview" class="current-data-preview" style="display: none;">
                                     <h6>Попередній перегляд:</h6>
-                                    <div id="step-${stepNumber}-preview-content"></div>
+                                    <div id="step-1-preview-content"></div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="departure-city" class="form-label">Оберіть місто:</label>
@@ -182,11 +182,9 @@
                             <!-- Крок 2: Дата та час виїзду -->
                             <div id="step-2" class="question-step">
                                 <h5 class="card-title mb-4">2. Дата та час виїзду</h5>
-                                <!-- Превью поточних даних (спочатку порожнє) -->
-                                <div id="step-${stepNumber}-preview" class="current-data-preview"
-                                    style="display: none;">
+                                <div id="step-2-preview" class="current-data-preview" style="display: none;">
                                     <h6>Попередній перегляд:</h6>
-                                    <div id="step-${stepNumber}-preview-content"></div>
+                                    <div id="step-2-preview-content"></div>
                                 </div>
                                 <div class="row mb-3">
                                     <div class="col-md-6">
@@ -212,11 +210,9 @@
                             <!-- Крок 3: Тип транспорту -->
                             <div id="step-3" class="question-step">
                                 <h5 class="card-title mb-4">3. Оберіть тип транспорту</h5>
-                                <!-- Превью поточних даних (спочатку порожнє) -->
-                                <div id="step-${stepNumber}-preview" class="current-data-preview"
-                                    style="display: none;">
+                                <div id="step-3-preview" class="current-data-preview" style="display: none;">
                                     <h6>Попередній перегляд:</h6>
-                                    <div id="step-${stepNumber}-preview-content"></div>
+                                    <div id="step-3-preview-content"></div>
                                 </div>
                                 <div class="d-grid gap-2 d-md-block mb-4">
                                     <!-- Група кнопок для вибору транспорту -->
@@ -242,11 +238,9 @@
                             <!-- Крок 4: Місто прибуття -->
                             <div id="step-4" class="question-step">
                                 <h5 class="card-title mb-4">4. Місто прибуття</h5>
-                                <!-- Превью поточних даних (спочатку порожнє) -->
-                                <div id="step-${stepNumber}-preview" class="current-data-preview"
-                                    style="display: none;">
+                                <div id="step-4-preview" class="current-data-preview" style="display: none;">
                                     <h6>Попередній перегляд:</h6>
-                                    <div id="step-${stepNumber}-preview-content"></div>
+                                    <div id="step-4-preview-content"></div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="arrival-city" class="form-label">Оберіть місто:</label>
@@ -263,11 +257,9 @@
                             <!-- Крок 5: Дата та час прибуття -->
                             <div id="step-5" class="question-step">
                                 <h5 class="card-title mb-4">5. Дата та час прибуття</h5>
-                                <!-- Превью поточних даних (спочатку порожнє) -->
-                                <div id="step-${stepNumber}-preview" class="current-data-preview"
-                                    style="display: none;">
+                                <div id="step-5-preview" class="current-data-preview" style="display: none;">
                                     <h6>Попередній перегляд:</h6>
-                                    <div id="step-${stepNumber}-preview-content"></div>
+                                    <div id="step-5-preview-content"></div>
                                 </div>
                                 <div class="row mb-3">
                                     <div class="col-md-6">
@@ -290,11 +282,9 @@
                             <!-- Крок 6: Ночівля -->
                             <div id="step-6" class="question-step">
                                 <h5 class="card-title mb-4">6. Чи передбачена ночівля?</h5>
-                                <!-- Превью поточних даних (спочатку порожнє) -->
-                                <div id="step-${stepNumber}-preview" class="current-data-preview"
-                                    style="display: none;">
+                                <div id="step-6-preview" class="current-data-preview" style="display: none;">
                                     <h6>Попередній перегляд:</h6>
-                                    <div id="step-${stepNumber}-preview-content"></div>
+                                    <div id="step-6-preview-content"></div>
                                 </div>
                                 <div class="mb-4">
                                     <button type="button" class="btn btn-outline-primary me-2 overnight-btn"
@@ -569,7 +559,7 @@
                 }
             }
 
-            // Перевірка, що місто прибуття не співпадає з містом відправлення
+            // Перевірка, що місто прибуття не співпадати з містом відправлення
             if (currentLeg.departureCity === currentLeg.arrivalCity) {
                 showToast('Місто прибуття не може співпадати з містом відправлення!');
                 return;
