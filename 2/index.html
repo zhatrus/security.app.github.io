@@ -137,7 +137,7 @@
         <!-- Блок для відображення зведеної інформації (спочатку порожній) -->
         <div class="row justify-content-center mb-4">
             <div class="col-md-8">
-                <div id="summary-container" class="card bg-white bg-opacity-75 backdrop-blur" style="display: none;">
+                <div id="summary-container" class="card bg-white bg-opacity-75 backdrop-blur">
                     <div class="card-header">
                         Зведена інформація
                     </div>
@@ -569,8 +569,7 @@
             const newIndex = tripData.legs.length;
             tripData.legs.push({ ...currentLeg });
 
-            // Показуємо контейнер і додаємо сегмент до зведеної інформації
-            document.getElementById('summary-container').style.display = 'block';
+            // Додаємо сегмент до зведеної інформації на сторінці
             addLegToSummary(currentLeg, newIndex);
 
             // Скидаємо поточний сегмент для наступного використання
