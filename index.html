@@ -36,18 +36,28 @@
             }
         }
 
-        /* Новий стиль для тимчасового відображення даних */
+        /* Стиль для тимчасового відображення даних */
         .current-data-preview {
-            background-color: #f8f9fa;
-            border-left: 4px solid #0d6efd;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
             padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
+            margin: 15px 0;
+            border-radius: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .current-data-preview:hover {
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
 
         .current-data-preview h6 {
-            color: #0d6efd;
-            margin-bottom: 10px;
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
         }
         .toast-container {
             position: fixed;
@@ -125,8 +135,8 @@
 
     <div class="container py-5">
         <!-- Заголовок -->
-        <div class="row justify-content-center mb-4">
-            <div class="col-md-8 text-center">
+        <div class="row justify-content-center mb-4" id="main-header">
+            <div class="col-md-10 text-center">
                 <div class="bg-white bg-opacity-75 p-4 rounded-4 backdrop-blur">
                     <h1 class="display-6 mb-2">Планувальник відряджень</h1>
                     <p class="lead mb-0">Створіть план вашої поїздки</p>
@@ -136,7 +146,7 @@
 
         <!-- Блок для відображення зведеної інформації (спочатку порожній) -->
         <div class="row justify-content-center mb-4">
-            <div class="col-md-8">
+            <div class="col-md-10">
                 <div id="summary-container" class="card bg-white bg-opacity-75 backdrop-blur" style="display: none;">
                     <div class="card-header">
                         Зведена інформація
@@ -151,7 +161,7 @@
 
         <!-- Контейнер для форми з питаннями -->
         <div class="row justify-content-center">
-            <div class="col-md-8">
+            <div class="col-md-10">
                 <div class="card shadow-sm rounded-4 border-0 bg-white bg-opacity-75 backdrop-blur">
                     <div class="card-body p-4">
 
@@ -214,15 +224,15 @@
                                     <h6>Попередній перегляд:</h6>
                                     <div id="step-3-preview-content"></div>
                                 </div>
-                                <div class="d-grid gap-2 d-md-block mb-4">
+                                <div class="d-grid gap-2 d-md-flex mb-4">
                                     <!-- Група кнопок для вибору транспорту -->
-                                    <button type="button" class="btn btn-outline-primary transport-btn"
+                                    <button type="button" class="btn btn-outline-primary transport-btn flex-fill"
                                         data-transport="train">Залізниця</button>
-                                    <button type="button" class="btn btn-outline-primary transport-btn"
+                                    <button type="button" class="btn btn-outline-primary transport-btn flex-fill"
                                         data-transport="company_car">Службове авто</button>
-                                    <button type="button" class="btn btn-outline-primary transport-btn"
+                                    <button type="button" class="btn btn-outline-primary transport-btn flex-fill"
                                         data-transport="bus">Автобус</button>
-                                    <button type="button" class="btn btn-outline-primary transport-btn"
+                                    <button type="button" class="btn btn-outline-primary transport-btn flex-fill"
                                         data-transport="personal_car">Особисте авто</button>
                                 </div>
                                 <input type="hidden" id="selected-transport">
@@ -338,8 +348,9 @@
 
     <!-- Підключаємо Bootstrap JS та Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Підключаємо наш власний JS файл -->
-    <!-- <script src="script.js"></script> -->
+    <!-- Підключаємо файли з містами та готелями -->
+    <script src="cities.js"></script>
+    <script src="hotels.js"></script>
     <script>
         // Функція для показу Toast повідомлень
         function showToast(message, type = 'danger') {
@@ -465,11 +476,14 @@
             currentLeg.arrivalDate = arrivalDateInput.value;
             currentLeg.arrivalTime = timeSelect.value;
 
-            // Очищаємо поля
+            // Спочатку переходимо до наступного кроку
+            showStep(6);
+            // Тільки потім оновлюємо превью
+            updateStepPreview();
+
+            // В кінці очищаємо поля для наступного використання
             arrivalDateInput.value = '';
             timeSelect.selectedIndex = 0;
-
-            showStep(6);
         }
 
         // ===== КРОК 6: Ночівля =====
@@ -503,22 +517,19 @@
             const hotelSelect = document.getElementById('hotel-select');
             hotelSelect.innerHTML = '<option value="">Завантаження...</option>';
 
-            // ТИМЧАСОВО: заглушка з декількома тестовими готелями
-            // На практиці тут буде AJAX-запит до вашого n8n/workflow
             setTimeout(() => {
-                // Це тестові дані - замініть на реальний запит до API
-                const testHotels = [
-                    { id: 1, name: 'Готель "Центральний"', city: cityName },
-                    { id: 2, name: 'Хостел "Подорожник"', city: cityName },
-                    { id: 3, name: 'Готель "Престиж"', city: cityName }
-                ];
-
+                const cityHotels = window.hotels.getHotelsByCity(cityName);
+                
                 hotelSelect.innerHTML = '<option value="">Оберіть готель...</option>';
-                testHotels.forEach(hotel => {
-                    const option = new Option(hotel.name, hotel.id);
+                cityHotels.forEach((hotel, index) => {
+                    const option = new Option(hotel.name, index);
+                    if (hotel.status !== "Погоджено") {
+                        option.disabled = true;
+                        option.text += ` (${hotel.status})`;
+                    }
                     hotelSelect.appendChild(option);
                 });
-            }, 500);
+            }, 300);
         }
 
         function processStep6() {
@@ -588,11 +599,11 @@
             document.getElementById('hotel-selection-block').style.display = 'none';
             document.getElementById('departure-time-block').style.display = 'none';
 
-            // Переходимо до фінального кроку
+            // Оновлюємо превью востаннє перед переходом
+            updateStepPreview();
+            
+            // Тільки потім переходимо до фінального кроку
             showStep(7);
-
-            // Оновлюємо превью для кроку 6 (очищаємо)
-            updateStepPreview(6, null);
         }
 
         // ===== КРОК 7: Завершення =====
@@ -704,12 +715,18 @@
 
             // Зберігаємо дані в поточний сегмент
             currentLeg.departureCity = cityName;
-
-            // Очищаємо поле для наступного використання (для міста прибуття)
-            cityInput.value = '';
-
-            // Переходимо до наступного кроку
+            
+            // Приховуємо заголовок
+            document.getElementById('main-header').style.display = 'none';
+            
+            // Переходимо до наступного кроку (це змінить currentStep)
             showStep(2);
+            
+            // Після зміни кроку оновлюємо превью
+            updateStepPreview();
+
+            // Очищаємо поле для наступного використання
+            cityInput.value = '';
         }
 
         function processStep2() {
@@ -741,6 +758,7 @@
             currentLeg.departureTime = timeSelect.value;
 
             showStep(3);
+            updateStepPreview();
         }
 
         function processStep3() {
@@ -760,6 +778,7 @@
 
             // Переходимо до наступного кроку (місто прибуття)
             showStep(4);
+            updateStepPreview();
         }
 
         function setupOvernightButtons() {
@@ -861,82 +880,93 @@
         }
 
         // Функції для оновлення превью для кожного кроку
-        function updateStepPreview(stepNumber, content) {
-            const previewElement = document.getElementById(`step-${stepNumber}-preview`);
-            const contentElement = document.getElementById(`step-${stepNumber}-preview-content`);
+        function updateStepPreview() {
+            const previewContainer = document.getElementById(`step-${currentStep}-preview`);
+            const previewContent = document.getElementById(`step-${currentStep}-preview-content`);
+            
+            if (!previewContainer || !previewContent) return;
 
-            if (content) {
-                contentElement.innerHTML = content;
-                previewElement.style.display = 'block';
+            let html = '<div class="d-flex justify-content-between"><div class="flex-grow-1">';
+            
+            // Додаємо поля в залежності від поточного кроку
+            if (currentStep >= 1) {
+                html += `<p class="mb-2"><strong>Маршрут:</strong> 
+                    <span id="preview-route">${currentLeg.departureCity || '___'}${currentStep > 3 ? ` → ${currentLeg.arrivalCity || '___'}` : ''}</span>
+                </p>`;
+            }
+            
+            if (currentStep >= 2) {
+                html += `<p class="mb-2"><strong>Виїзд:</strong> 
+                    <span id="preview-departure">${currentLeg.departureDate ? `${currentLeg.departureDate} о ${currentLeg.departureTime}` : '___'}</span>
+                </p>`;
+            }
+            
+            if (currentStep >= 3) {
+                html += `<p class="mb-2"><strong>Транспорт:</strong> 
+                    <span id="preview-transport">${currentLeg.transportType ? getTransportLabel(currentLeg.transportType) : '___'}</span>
+                </p>`;
+            }
+            
+            if (currentStep >= 5) {
+                html += `<p class="mb-2"><strong>Прибуття:</strong> 
+                    <span id="preview-arrival">${currentLeg.arrivalDate ? `${currentLeg.arrivalDate} о ${currentLeg.arrivalTime}` : '___'}</span>
+                </p>`;
+            }
+            
+            if (currentStep >= 6) {
+                html += `<p class="mb-0"><strong>Ночівля:</strong> 
+                    <span id="preview-overnight">${
+                        currentLeg.overnightStay !== undefined 
+                            ? currentLeg.overnightStay 
+                                ? `Так (${currentLeg.hotelName || 'готель не обрано'})` 
+                                : `Ні (виїзд о ${currentLeg.nextDepartureTime || '___'})` 
+                            : '___'
+                    }</span>
+                </p>`;
+            }
+
+            html += `</div>
+                <div class="ms-3 d-flex flex-column">
+                    <small class="text-muted">Крок ${currentStep} з 6</small>
+                </div>
+            </div>`;
+
+            previewContent.innerHTML = html;
+            
+            // Показуємо превью тільки після вибору першого міста
+            if (currentStep === 1) {
+                previewContainer.style.display = 'none';
             } else {
-                previewElement.style.display = 'none';
+                previewContainer.style.display = 'block';
             }
         }
 
         // Оновлення превью для кожного кроку
         function setupPreviewUpdates() {
-            // Крок 1: Місто
-            document.getElementById('departure-city').addEventListener('input', function () {
-                if (this.value.trim()) {
-                    updateStepPreview(1, `<strong>Місто:</strong> ${this.value}`);
-                } else {
-                    updateStepPreview(1, null);
-                }
-            });
-
-            // Крок 2: Дата і час
-            document.getElementById('departure-date').addEventListener('change', updateStep2Preview);
-            document.getElementById('departure-time').addEventListener('change', updateStep2Preview);
-
-            function updateStep2Preview() {
-                const date = document.getElementById('departure-date').value;
-                const time = document.getElementById('departure-time').value;
-
-                if (date && time) {
-                    updateStepPreview(2, `<strong>Виїзд:</strong> ${date} о ${time}`);
-                } else {
-                    updateStepPreview(2, null);
-                }
-            }
-
-            // Крок 3: Транспорт
+            // Відслідковуємо зміни для всіх полів
+            document.getElementById('departure-city').addEventListener('input', updateStepPreview);
+            document.getElementById('departure-date').addEventListener('change', updateStepPreview);
+            document.getElementById('departure-time').addEventListener('change', updateStepPreview);
+            document.getElementById('arrival-city').addEventListener('input', updateStepPreview);
+            document.getElementById('arrival-date').addEventListener('change', updateStepPreview);
+            document.getElementById('arrival-time').addEventListener('change', updateStepPreview);
+            
+            // Для кнопок транспорту
             document.querySelectorAll('.transport-btn').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    updateStepPreview(3, `<strong>Транспорт:</strong> ${this.textContent}`);
-                });
+                btn.addEventListener('click', updateStepPreview);
             });
-
-            // Крок 4: Місто прибуття
-            document.getElementById('arrival-city').addEventListener('input', function () {
-                if (this.value.trim()) {
-                    updateStepPreview(4, `<strong>Місто прибуття:</strong> ${this.value}`);
-                } else {
-                    updateStepPreview(4, null);
-                }
-            });
-
-            // Крок 5: Дата і час прибуття
-            document.getElementById('arrival-date').addEventListener('change', updateStep5Preview);
-            document.getElementById('arrival-time').addEventListener('change', updateStep5Preview);
-
-            function updateStep5Preview() {
-                const date = document.getElementById('arrival-date').value;
-                const time = document.getElementById('arrival-time').value;
-
-                if (date && time) {
-                    updateStepPreview(5, `<strong>Прибуття:</strong> ${date} о ${time}`);
-                } else {
-                    updateStepPreview(5, null);
-                }
-            }
-
-            // Крок 6: Ночівля
+            
+            // Для кнопок ночівлі
             document.querySelectorAll('.overnight-btn').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    const choice = this.dataset.overnight === 'true' ? 'Так' : 'Ні';
-                    updateStepPreview(6, `<strong>Ночівля:</strong> ${choice}`);
-                });
+                btn.addEventListener('click', updateStepPreview);
             });
+            
+            // Для готелю та часу виїзду
+            document.getElementById('hotel-select').addEventListener('change', updateStepPreview);
+            document.getElementById('next-departure-time').addEventListener('change', updateStepPreview);
+            
+            // Показуємо початковий стан превью
+            updateStepPreview();
         }
 
         function editLeg(index) {
@@ -987,14 +1017,55 @@
         // ===== ПОЧАТКОВЕ НАЛАШТУВАННЯ =====
         // Викликаємо функції налаштування після завантаження сторінки
         window.onload = function () {
+            // Існуючі налаштування
             populateSelectWithTime('departure-time');
             populateSelectWithTime('arrival-time');
             populateSelectWithTime('next-departure-time');
-
             setupTransportButtons();
             setupOvernightButtons();
             setupDateValidation();
-            setupPreviewUpdates(); // Додаємо оновлення превью
+            setupPreviewUpdates();
+
+            // Додаємо автодоповнення для полів міст
+            ['departure-city', 'arrival-city'].forEach(cityInputId => {
+                const input = document.getElementById(cityInputId);
+                const suggestionsContainer = input.nextElementSibling;
+
+                input.addEventListener('input', function() {
+                    const query = this.value.trim();
+                    if (query.length < 2) {
+                        suggestionsContainer.style.display = 'none';
+                        return;
+                    }
+
+                    const suggestions = window.searchCities(query);
+                    if (suggestions.length > 0) {
+                        suggestionsContainer.innerHTML = suggestions
+                            .map(city => `<button class="list-group-item list-group-item-action">${city}</button>`)
+                            .join('');
+                        suggestionsContainer.style.display = 'block';
+
+                        // Обробка кліків по підказках
+                        suggestionsContainer.querySelectorAll('button').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                input.value = this.textContent;
+                                suggestionsContainer.style.display = 'none';
+                                // Оновлюємо превью якщо є
+                                input.dispatchEvent(new Event('input'));
+                            });
+                        });
+                    } else {
+                        suggestionsContainer.style.display = 'none';
+                    }
+                });
+
+                // Ховаємо підказки при кліку поза полем
+                document.addEventListener('click', function(e) {
+                    if (!input.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+                        suggestionsContainer.style.display = 'none';
+                    }
+                });
+            });
         };
     </script>
     <!-- Контейнер для Toast повідомлень -->
