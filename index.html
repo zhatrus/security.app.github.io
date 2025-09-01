@@ -92,6 +92,38 @@
                 background: #fff;
                 border-radius: 15px;
                 margin-bottom: 1rem;
+                transition: all 0.3s ease-in-out;
+            }
+            
+            .leg-item.highlight {
+                background: #fff3cd;
+                border-color: #ffeeba;
+                animation: highlightAndFade 2s ease-in-out;
+            }
+            
+            .leg-item.removing {
+                animation: slideOutAndFade 0.5s ease-in-out forwards;
+            }
+            
+            @keyframes highlightAndFade {
+                0% { background: #fff3cd; }
+                70% { background: #fff3cd; }
+                100% { background: #fff; }
+            }
+            
+            @keyframes slideOutAndFade {
+                0% {
+                    opacity: 1;
+                    transform: translateX(0);
+                    max-height: 200px;
+                }
+                100% {
+                    opacity: 0;
+                    transform: translateX(-100%);
+                    max-height: 0;
+                    margin: 0;
+                    padding: 0;
+                }
             }
         }
 
@@ -582,7 +614,10 @@
 
             // Показуємо контейнер і додаємо сегмент до зведеної інформації
             document.getElementById('summary-container').style.display = 'block';
-            addLegToSummary(currentLeg, newIndex);
+            const newLegElement = addLegToSummary(currentLeg, newIndex);
+
+            // Підсвічуємо новий сегмент
+            newLegElement.classList.add('highlight');
 
             // Скидаємо поточний сегмент для наступного використання
             currentLeg = {};
@@ -688,6 +723,7 @@
             </div>
         `;
             summaryContainer.appendChild(legElement);
+            return legElement;
         }
 
         // Допоміжна функція для отримання української мітки транспорту
@@ -971,34 +1007,72 @@
 
         function editLeg(index) {
             const legToEdit = tripData.legs[index];
-
-            // Заповнюємо форму даними для редагування
-            document.getElementById('departure-city').value = legToEdit.departureCity;
-            document.getElementById('departure-date').value = legToEdit.departureDate;
-            document.getElementById('departure-time').value = legToEdit.departureTime;
-
+            
+            // Зберігаємо дані в поточний сегмент
+            currentLeg = { ...legToEdit };
+            
+            // Заповнюємо всі поля форми (з перевіркою на undefined)
+            document.getElementById('departure-city').value = currentLeg.departureCity || '';
+            document.getElementById('departure-date').value = currentLeg.departureDate || '';
+            document.getElementById('departure-time').value = currentLeg.departureTime || '';
+            
             // Вибираємо транспорт
             document.querySelectorAll('.transport-btn').forEach(btn => {
-                if (btn.dataset.transport === legToEdit.transportType) {
-                    btn.click();
+                if (btn.dataset.transport === currentLeg.transportType) {
+                    btn.classList.add('active');
+                    document.getElementById('selected-transport').value = currentLeg.transportType;
                 }
             });
 
-            // Видаляємо цей сегмент з масиву
-            tripData.legs.splice(index, 1);
+            // Заповнюємо поля прибуття
+            document.getElementById('arrival-city').value = currentLeg.arrivalCity || '';
+            document.getElementById('arrival-date').value = currentLeg.arrivalDate || '';
+            document.getElementById('arrival-time').value = currentLeg.arrivalTime || '';
 
-            // Оновлюємо відображення
+            // Налаштовуємо ночівлю
+            if (currentLeg.overnightStay !== undefined) {
+                document.querySelectorAll('.overnight-btn').forEach(btn => {
+                    if (btn.dataset.overnight === String(currentLeg.overnightStay)) {
+                        btn.click(); // Використовуємо click() для активації всіх обробників подій
+                    }
+                });
+                
+                if (currentLeg.overnightStay) {
+                    // Завантажимо готелі і виберемо потрібний
+                    loadHotelsForCity(currentLeg.arrivalCity);
+                    setTimeout(() => {
+                        const hotelSelect = document.getElementById('hotel-select');
+                        Array.from(hotelSelect.options).forEach((option, idx) => {
+                            if (option.text === currentLeg.hotelName) {
+                                hotelSelect.selectedIndex = idx;
+                            }
+                        });
+                    }, 500);
+                } else if (currentLeg.nextDepartureTime) {
+                    document.getElementById('next-departure-time').value = currentLeg.nextDepartureTime;
+                }
+            }
+
+            // Видаляємо старий сегмент
+            tripData.legs.splice(index, 1);
             updateSummaryDisplay();
 
-            // Переходимо до першого кроку
+            // Показуємо перший крок
             showStep(1);
+            // Оновлюємо превью з новими даними
+            updateStepPreview();
         }
 
         function deleteLeg(index) {
             if (confirm('Видалити цей сегмент поїздки?')) {
-                tripData.legs.splice(index, 1);
-                updateSummaryDisplay();
-            }
+                const legElement = document.querySelector(`.leg-item[data-index="${index}"]`);
+                legElement.classList.add('removing');
+                
+                // Чекаємо завершення анімації перед видаленням
+                setTimeout(() => {
+                    tripData.legs.splice(index, 1);
+                    updateSummaryDisplay();
+                }, 500);
         }
 
         function updateSummaryDisplay() {
