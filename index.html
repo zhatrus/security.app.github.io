@@ -7,7 +7,7 @@
     <title>Планувальник відряджень</title>
     <!-- Підключаємо Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Можна підключити ваш власний CSS файл тут -->
+    <!-- Можна підключити ваш власний CSS файл тутА -->
     <!-- <link rel="stylesheet" href="styles.css"> -->
 
     <style>
@@ -92,38 +92,6 @@
                 background: #fff;
                 border-radius: 15px;
                 margin-bottom: 1rem;
-                transition: all 0.3s ease-in-out;
-            }
-            
-            .leg-item.highlight {
-                background: #fff3cd;
-                border-color: #ffeeba;
-                animation: highlightAndFade 2s ease-in-out;
-            }
-            
-            .leg-item.removing {
-                animation: slideOutAndFade 0.5s ease-in-out forwards;
-            }
-            
-            @keyframes highlightAndFade {
-                0% { background: #fff3cd; }
-                70% { background: #fff3cd; }
-                100% { background: #fff; }
-            }
-            
-            @keyframes slideOutAndFade {
-                0% {
-                    opacity: 1;
-                    transform: translateX(0);
-                    max-height: 200px;
-                }
-                100% {
-                    opacity: 0;
-                    transform: translateX(-100%);
-                    max-height: 0;
-                    margin: 0;
-                    padding: 0;
-                }
             }
         }
 
@@ -614,10 +582,7 @@
 
             // Показуємо контейнер і додаємо сегмент до зведеної інформації
             document.getElementById('summary-container').style.display = 'block';
-            const newLegElement = addLegToSummary(currentLeg, newIndex);
-
-            // Підсвічуємо новий сегмент
-            newLegElement.classList.add('highlight');
+            addLegToSummary(currentLeg, newIndex);
 
             // Скидаємо поточний сегмент для наступного використання
             currentLeg = {};
@@ -723,7 +688,6 @@
             </div>
         `;
             summaryContainer.appendChild(legElement);
-            return legElement;
         }
 
         // Допоміжна функція для отримання української мітки транспорту
@@ -1065,14 +1029,9 @@
 
         function deleteLeg(index) {
             if (confirm('Видалити цей сегмент поїздки?')) {
-                const legElement = document.querySelector(`.leg-item[data-index="${index}"]`);
-                legElement.classList.add('removing');
-                
-                // Чекаємо завершення анімації перед видаленням
-                setTimeout(() => {
-                    tripData.legs.splice(index, 1);
-                    updateSummaryDisplay();
-                }, 500);
+                tripData.legs.splice(index, 1);
+                updateSummaryDisplay();
+            }
         }
 
         function updateSummaryDisplay() {
