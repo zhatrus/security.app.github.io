@@ -8,7 +8,7 @@
     <!-- Підключаємо Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Підключення Supabase JS SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         body {
             background: linear-gradient(180deg, #E3EEFF 0%, #F3F8FF 100%) fixed;
@@ -1106,7 +1106,7 @@
         // Ініціалізація клієнта Supabase
         const supabaseUrl = 'https://ssdjfcdgxlxcoidpndix.supabase.co';
         const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNzZGpmY2RneGx4Y29pZHBuZGl4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwMTE1NDYsImV4cCI6MjA3MjU4NzU0Nn0.WHruUEls1-V418FducFudKI38HiPGbuNUyFAj_W-z2o';
-        const supabase = supabaseClient.createClient(supabaseUrl, supabaseAnonKey);
+        const supabase = supabase.createClient(supabaseUrl, supabaseAnonKey);
 
         // Перевірка автентифікації при завантаженні сторінки
         window.addEventListener('load', async () => {
@@ -1147,28 +1147,32 @@
     </script>
 
     <!-- Контейнер для авторизації -->
-    <div id="auth-container" style="display: none;" class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6 text-center">
-                <h2>Авторизація</h2>
-                <div class="d-grid gap-2 mt-3">
-                    <button onclick="signInWithGoogle()" class="btn btn-primary">
-                        Увійти через Google
-                    </button>
-                    <button onclick="signInWithMicrosoft()" class="btn btn-secondary">
-                        Увійти через Microsoft
-                    </button>
+    <div id="auth-container" style="display: none;">
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-6 text-center">
+                    <h2>Авторизація</h2>
+                    <div class="d-grid gap-2 mt-3">
+                        <button onclick="signInWithGoogle()" class="btn btn-primary">
+                            Увійти через Google
+                        </button>
+                        <button onclick="signInWithMicrosoft()" class="btn btn-secondary">
+                            Увійти через Microsoft
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Контейнер для основного контенту -->
-    <div id="main-content">
-        <!-- Тут весь ваш існуючий контент -->
-        <button onclick="signOut()" class="btn btn-danger position-fixed top-0 end-0 m-3">
-            Вийти
-        </button>
+    <div id="main-content" style="display: none;">
+        <div class="container">
+            <!-- Весь попередній контент залишається тут -->
+            <button onclick="signOut()" class="btn btn-danger position-fixed top-0 end-0 m-3">
+                Вийти
+            </button>
+        </div>
     </div>
 
     <!-- Контейнер для Toast повідомлень -->
