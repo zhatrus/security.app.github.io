@@ -95,3 +95,23 @@ class Auth {
 }
 
 window.auth = new Auth();
+
+// Додаємо обробники подій для кнопок після завантаження DOM
+document.addEventListener('DOMContentLoaded', () => {
+    const googleBtn = document.getElementById('google-signin');
+    const microsoftBtn = document.getElementById('microsoft-signin');
+    const signOutBtn = document.querySelector('[onclick="window.auth.signOut()"]');
+
+    if (googleBtn) {
+        googleBtn.addEventListener('click', () => window.auth.signInWithGoogle());
+    }
+    
+    if (microsoftBtn) {
+        microsoftBtn.addEventListener('click', () => window.auth.signInWithMicrosoft());
+    }
+
+    if (signOutBtn) {
+        signOutBtn.removeAttribute('onclick');
+        signOutBtn.addEventListener('click', () => window.auth.signOut());
+    }
+});

@@ -1,8 +1,8 @@
 const CACHE_NAME = 'trip-planner-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/auth.html',
+  './',
+  './index.html',
+  './auth.html',
   '/styles/main.css',
   '/scripts/app.js',
   '/scripts/auth.js',
