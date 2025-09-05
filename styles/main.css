@@ -1,0 +1,139 @@
+body {
+    background: linear-gradient(180deg, #E3EEFF 0%, #F3F8FF 100%) fixed;
+    background-image: url('../images/background.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    min-height: 100vh;
+}
+
+/* Форма */
+.question-step {
+    display: none;
+}
+
+.active-step {
+    display: block;
+}
+
+/* Превью */
+.current-data-preview {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.current-data-preview:hover {
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.current-data-preview h6 {
+    color: #6c757d;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+/* Toast */
+.toast-container {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+
+.toast {
+    min-width: 300px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+}
+
+/* Форми та кнопки */
+.form-control, .form-select {
+    border: 1px solid rgba(0,0,0,0.1);
+    background: rgba(255,255,255,0.9);
+}
+
+.form-control:focus, .form-select:focus {
+    background: rgba(255,255,255,0.95);
+    box-shadow: 0 0 0 0.25rem rgba(13,110,253,.15);
+}
+
+.btn {
+    padding: 0.5rem 1.5rem;
+    border-radius: 50rem;
+}
+
+/* Адаптивність */
+@media (max-width: 768px) {
+    .container {
+        padding: 0.5rem;
+    }
+    
+    .toast {
+        width: 90%;
+        min-width: auto;
+        margin: 0 auto 10px;
+    }
+    
+    .transport-btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    .overnight-btn {
+        width: calc(50% - 0.5rem);
+    }
+
+    .leg-item {
+        background: #fff;
+        border-radius: 15px;
+        margin-bottom: 1rem;
+    }
+}
+
+@media (min-width: 769px) {
+    .container {
+        max-width: 900px;
+    }
+    
+    .card {
+        border-radius: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .transport-btn {
+        min-width: 150px;
+        margin-right: 0.5rem;
+    }
+}
+
+/* Авторизація */
+.auth-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #E3EEFF 0%, #F3F8FF 100%) fixed;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 2rem;
+}
+
+.auth-box {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
