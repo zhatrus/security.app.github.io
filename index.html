@@ -1158,6 +1158,19 @@
         // Ініціалізація авторизації
         async function initAuth() {
             try {
+                // Перевіряємо наявність хешу в URL
+                if (window.location.hash) {
+                    // Отримуємо сесію після авторизації
+                    const { data: { session }, error } = await supabase.auth.getSession();
+                    if (session) {
+                        // Видаляємо хеш з URL без перезавантаження
+                        history.replaceState(null, null, ' ');
+                        updateUI(session);
+                        return;
+                    }
+                }
+
+                // Перевіряємо існуючу сесію
                 const { data: { session }, error } = await supabase.auth.getSession();
                 if (error) throw error;
                 
@@ -1166,7 +1179,12 @@
                 // Підписуємось на зміни стану авторизації
                 supabase.auth.onAuthStateChange((event, session) => {
                     console.log('Auth state changed:', event);
-                    updateUI(session);
+                    if (event === 'SIGNED_IN') {
+                        // Оновлюємо UI без перезавантаження
+                        updateUI(session);
+                    } else if (event === 'SIGNED_OUT') {
+                        updateUI(null);
+                    }
                 });
 
             } catch (error) {
@@ -1177,15 +1195,19 @@
         // Функції авторизації
         async function signInWithGoogle() {
             try {
-                const { error } = await supabase.auth.signInWithOAuth({
+                const { data, error } = await supabase.auth.signInWithOAuth({
                     provider: 'google',
                     options: {
-                        redirectTo: `${baseUrl}/index.html`
+                        redirectTo: `${baseUrl}/index.html`,
+                        queryParams: {
+                            prompt: 'select_account'
+                        }
                     }
                 });
                 if (error) throw error;
             } catch (error) {
                 console.error('Google auth error:', error);
+                showToast('Помилка авторизації через Google', 'danger');
             }
         }
 
