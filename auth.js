@@ -7,12 +7,33 @@ const supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
 
 // Перевірка авторизації
 async function checkAuth() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
+    try {
+        // Спочатку перевіряємо наявність токенів
+        const accessToken = localStorage.getItem('sb-access-token');
+        const refreshToken = localStorage.getItem('sb-refresh-token');
+
+        if (!accessToken || !refreshToken) {
+            throw new Error('No tokens found');
+        }
+
+        // Встановлюємо сесію з токенів
+        const { data: { session }, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+        });
+
+        if (error) throw error;
+        
+        if (!session) {
+            throw new Error('No session');
+        }
+
+        return true;
+    } catch (error) {
+        console.error('Auth check error:', error);
         window.location.href = `${baseUrl}/auth/login.html`;
         return false;
     }
-    return true;
 }
 
 // Функція для оновлення UI
