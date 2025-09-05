@@ -17,7 +17,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
     <style>
         body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%) fixed;
+            background: linear-gradient(180deg, #E3EEFF 0%, #F3F8FF 100%) fixed;
+            background-image: url('background.png');
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
             min-height: 100vh;
         }
         
@@ -1121,7 +1125,7 @@
         const supabaseUrl = 'https://ssdjfcdgxlxcoidpndix.supabase.co';
         const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNzZGpmY2RneGx4Y29pZHBuZGl4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwMTE1NDYsImV4cCI6MjA3MjU4NzU0Nn0.WHruUEls1-V418FducFudKI38HiPGbuNUyFAj_W-z2o';
         const baseUrl = 'https://zhatrus.github.io/security.app.github.io';
-        let supabase;
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
 
         // Функція для оновлення UI на основі стану автентифікації
         function updateUI(session) {
@@ -1134,7 +1138,8 @@
             // Перевіряємо наявність всіх елементів
             if (!elements.auth || !elements.content || !elements.footer) {
                 console.log('Waiting for DOM elements...');
-                return false;
+                setTimeout(() => updateUI(session), 100);
+                return;
             }
 
             if (!session) {
@@ -1148,30 +1153,15 @@
                 elements.footer.style.display = 'block';
                 document.body.style.overflow = 'auto';
             }
-            return true;
         }
 
-        // Ініціалізація Supabase та авторизації
+        // Ініціалізація авторизації
         async function initAuth() {
-            // Ініціалізуємо Supabase тільки один раз
-            if (!supabase) {
-                supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
-            }
-
             try {
                 const { data: { session }, error } = await supabase.auth.getSession();
+                if (error) throw error;
                 
-                // Намагаємось оновити UI
-                if (!updateUI(session)) {
-                    // Якщо елементи не готові, пробуємо ще раз через 100мс
-                    setTimeout(() => initAuth(), 100);
-                    return;
-                }
-
-                // Прибираємо хеш після успішної авторизації
-                if (window.location.hash && session) {
-                    window.location.hash = '';
-                }
+                updateUI(session);
 
                 // Підписуємось на зміни стану авторизації
                 supabase.auth.onAuthStateChange((event, session) => {
@@ -1184,97 +1174,47 @@
             }
         }
 
-        // Починаємо ініціалізацію після завантаження DOM
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initAuth);
-        } else {
-            initAuth();
-        }
-
-        // Функція для оновлення відображення на основі стану автентифікації
-        function updateUIBasedOnAuth(session) {
-            // Чекаємо поки DOM буде готовий
-            setTimeout(() => {
-                const authContainer = document.getElementById('auth-container');
-                const mainContent = document.getElementById('main-content');
-                const mainFooter = document.getElementById('main-footer');
-
-                if (!authContainer || !mainContent || !mainFooter) {
-                    console.log('DOM elements not ready yet');
-                    return;
-                }
-
-                if (!session) {
-                    authContainer.style.display = 'flex';
-                    mainContent.style.display = 'none';
-                    mainFooter.style.display = 'none';
-                    document.body.style.overflow = 'hidden';
-                } else {
-                    authContainer.style.display = 'none';
-                    mainContent.style.display = 'block';
-                    mainFooter.style.display = 'block';
-                    document.body.style.overflow = 'auto';
-                }
-            }, 100); // Даємо час для завантаження DOM
-        }
-
-        // Функція для ініціалізації авторизації
-        async function initAuth() {
-            const { data: { session }, error } = await supabase.auth.getSession();
-            
-            if (window.location.hash && session) {
-                window.location.hash = '';
-            }
-            
-            updateUIBasedOnAuth(session);
-
-            // Підписка на зміни стану автентифікації
-            supabase.auth.onAuthStateChange((event, session) => {
-                console.log('Auth state changed:', event);
-                if (event === 'SIGNED_IN') {
-                    // Замість перезавантаження просто оновлюємо UI
-                    updateUIBasedOnAuth(session);
-                }
-                updateUIBasedOnAuth(session);
-            });
-        }
-
-        // Ініціалізуємо авторизацію після завантаження DOM
-        document.addEventListener('DOMContentLoaded', initAuth);
-        });
-
-        // Базовий URL додатку
-        const baseUrl = 'https://zhatrus.github.io/security.app.github.io';
-
         // Функції авторизації
-        window.signInWithGoogle = async function() {
-            if (!supabase) return;
-            const { data, error } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                    redirectTo: `${baseUrl}/index.html`
-                }
-            });
-            if (error) console.error('Error:', error.message);
-        };
+        async function signInWithGoogle() {
+            try {
+                const { error } = await supabase.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: `${baseUrl}/index.html`
+                    }
+                });
+                if (error) throw error;
+            } catch (error) {
+                console.error('Google auth error:', error);
+            }
+        }
 
-        window.signInWithMicrosoft = async function() {
-            if (!supabase) return;
-            const { data, error } = await supabase.auth.signInWithOAuth({
-                provider: 'azure',
-                options: {
-                    redirectTo: `${baseUrl}/index.html`
-                }
-            });
-            if (error) console.error('Error:', error.message);
-        };
+        async function signInWithMicrosoft() {
+            try {
+                const { error } = await supabase.auth.signInWithOAuth({
+                    provider: 'azure',
+                    options: {
+                        redirectTo: `${baseUrl}/index.html`
+                    }
+                });
+                if (error) throw error;
+            } catch (error) {
+                console.error('Microsoft auth error:', error);
+            }
+        }
 
-        window.signOut = async function() {
-            if (!supabase) return;
-            const { error } = await supabase.auth.signOut();
-            if (error) console.error('Error:', error.message);
-            else window.location.reload();
-        };
+        async function signOut() {
+            try {
+                const { error } = await supabase.auth.signOut();
+                if (error) throw error;
+                window.location.reload();
+            } catch (error) {
+                console.error('Sign out error:', error);
+            }
+        }
+
+        // Починаємо ініціалізацію після завантаження DOM
+        document.addEventListener('DOMContentLoaded', initAuth);
     </script>
 
     <!-- Контейнер для авторизації -->
@@ -1312,11 +1252,8 @@
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <button class="btn btn-sm btn-outline-secondary me-2">
-                        <i class="bi bi-house-door me-1"></i>Головна
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary">
-                        <i class="bi bi-question-circle me-1"></i>Допомога
+                    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#infoModal">
+                        <i class="bi bi-info-circle me-1"></i>Інфо
                     </button>
                 </div>
                 <div class="d-flex align-items-center">
@@ -1328,6 +1265,37 @@
             </div>
         </div>
     </footer>
+
+    <!-- Модальне вікно з інформацією -->
+    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="infoModalLabel">Інформація про додаток</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Програма розроблена для планування службових відряджень співробітників. Вона автоматизує процес оформлення відряджень, дозволяючи:</p>
+                    <ul>
+                        <li>Планувати маршрут поїздки</li>
+                        <li>Обирати транспорт</li>
+                        <li>Бронювати готелі з погодженого списку</li>
+                        <li>Розраховувати тривалість відрядження</li>
+                    </ul>
+                    <p>При використанні програми враховуються такі особливості:</p>
+                    <ul>
+                        <li>Дотримання правил відрядження</li>
+                        <li>Вибір готелів лише з погодженого переліку</li>
+                        <li>Оптимізація маршруту</li>
+                        <li>Контроль часу в дорозі</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрити</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Контейнер для Toast повідомлень -->
     <div class="toast-container"></div>
